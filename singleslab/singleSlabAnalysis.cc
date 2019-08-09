@@ -547,8 +547,8 @@ void singleSlabAnalysis::ReadMap(TString filename)
   reading_file >> tmpst >> tmpst >> tmpst >> tmpst >> tmpst >> tmpst ;
   while(reading_file){
     reading_file >> tmp_chip >> tmp_x0 >> tmp_y0 >> tmp_channel >> tmp_x >> tmp_y ;
-    map_pointX[tmp_chip][tmp_channel] = -tmp_x ;
-    map_pointY[tmp_chip][tmp_channel] = -tmp_y ;
+    map_pointX[tmp_chip][tmp_channel] = tmp_x ;
+    map_pointY[tmp_chip][tmp_channel] = tmp_y ;
   }
 
 }
@@ -806,7 +806,7 @@ void singleSlabAnalysis::PedestalAnalysis(TString slboard,TString sufix="",TStri
 	for(int ichn=0; ichn<64; ichn++) {
 
 	  //good events
-	  bool selection=false;
+	  bool selection=true;
 
 	  if( charge_lowGain[ichip][isca][ichn]>30 && badbcid[ichip][isca]==0 && nhits[ichip][isca]<maxnhit+1 ) {
 	    if ( (slboard=="_SLB_0" || slboard=="_SLB_1" || slboard=="_SLB_2" || slboard=="_SLB_3")  &&
@@ -816,7 +816,7 @@ void singleSlabAnalysis::PedestalAnalysis(TString slboard,TString sufix="",TStri
 		bcid[ichip][isca]>800 ) selection=true;
 	  }
 		  
-	  // if(masked[ichip][ichn]==1) selection=false;
+	  //if(masked[ichip][ichn]==1) selection=false;
  	  if(gain_hit_low[ichip][isca][ichn]==0 && selection==true && gooddata==true)
 	    ped_sca.at(ichip).at(ichn).at(isca)->Fill(charge_lowGain[ichip][isca][ichn]);
 
