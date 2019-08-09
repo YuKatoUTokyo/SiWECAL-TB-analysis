@@ -120,6 +120,37 @@ bool example::TrackBasicSelection( int nslabs_selection=7) {
 
 }
 
+bool example::TrackTightSelection( int nslabs_selection=9, int nhits_perslab=3) {
+
+
+  bool bool_hit_slab[10];
+  for(int i=0; i<NSLABS; i++ ) bool_hit_slab[i] = false;
+
+  int n_hit_slab[10];
+  for(int i=0; i<NSLABS; i++ ) n_hit_slab[i] = 0;
+
+
+  for(int ihit=0; ihit< nhit_chan; ihit ++) {
+    int z=hit_slab[ihit];
+    if(IsHit(ihit)==true ) {
+      bool_hit_slab[z]=true;
+      n_hit_slab[z]++;
+    }
+  }
+  
+  int nslabhitted =0;
+  for(int i=0; i<NSLABS; i++ ){
+    if( bool_hit_slab[i]==true)  nslabhitted++;
+  }
+  
+ 
+  if( nslabhitted<9) return false;
+  for(int i=0; i<NSLABS; i++ ) if( n_hit_slab[i]>nhits_perslab) return false;
+  
+  return true;
+
+}
+
 
 
 void example::SimpleEvDisplayTrack(TString outputname="")
@@ -164,6 +195,7 @@ void example::SimpleEvDisplayTrack(TString outputname="")
 	tracks=true;
 	//cout << "Fill: (x,y,z,lg) = (" << hit_x[ihit] << "," << hit_y[ihit] << "," << hit_z[ihit] << "," << hit_hg[ihit] << ")" << endl;
 	mip_evdisp[ntracks]->Fill(hit_x[ihit],hit_z[ihit],hit_y[ihit],hit_hg[ihit]);
+	//	mip_evdisp[ntracks]->Fill(hit_x[ihit],hit_z[ihit],hit_y[ihit],hit_energy[ihit]);
 	//	else mip_evdisp[ntracks]->Fill(-hit_x[ihit],hit_z[ihit],-hit_y[ihit],hit_lg[ihit]);
 	
       }
@@ -205,8 +237,8 @@ void example::SimpleDistributionsTrack(TString outputname="")
   //Objects to store the chip/channel results:
   // numbers 
   TH1F* mip_histo_all = new TH1F("mip_histo_all","mip_histo_all",4096,0.1,4096.1);
-  TH2F* delta_x = new TH2F("delta_x","delta_x",9,-0.5,8.5,32,-90,90);
-  TH2F* delta_y = new TH2F("delta_y","delta_y",9,-0.5,8.5,32,-90,90);
+  TH2F* delta_x = new TH2F("delta_x","delta_x",9,-0.5,8.5,33,-92.8125,92.8125);
+  TH2F* delta_y = new TH2F("delta_y","delta_y",9,-0.5,8.5,33,-92.8125,92.8125);
 
 
   int ntracks=0;
@@ -224,7 +256,7 @@ void example::SimpleDistributionsTrack(TString outputname="")
     if( (jentry % fivepercent) == 0 ) cout<< "Progress: "<<100.*jentry/nentries<<" %" <<endl;
 
     if( bcid<50 || (bcid>899 && bcid<950)) continue;
-    if(TrackBasicSelection()==false) continue;
+    if(TrackTightSelection()==false) continue;
 
     double hit_x_slab5[1000];
     double hit_y_slab5[1000];
@@ -248,12 +280,10 @@ void example::SimpleDistributionsTrack(TString outputname="")
 
     for(int i=0; i<hit_slab5; i++) {
       for(int ihit=0; ihit< nhit_chan; ihit ++) {
-	if(  hit_isMasked[ihit] == 0 && hit_isHit[ihit]==1 ) {
-	  int z=hit_slab[ihit];
-	  if(hit_x_slab5[i]>-900 && hit_x_slab5[i]>-900) {
-	    delta_x->Fill(z,hit_x_slab5[i]-hit_x[ihit]);
-	    delta_y->Fill(z,hit_y_slab5[i]-hit_y[ihit]);
-	  }
+	int z=hit_slab[ihit];
+	if(  hit_isHit[ihit]==1 && z!=5) {
+	  delta_x->Fill(z,hit_x_slab5[i]-hit_x[ihit]);
+	  delta_y->Fill(z,hit_y_slab5[i]-hit_y[ihit]);
 	}
       }
     }
@@ -274,7 +304,7 @@ void example::SimpleDistributionsTrack(TString outputname="")
   delta_x->Write();
   delta_y->Write();
 
-
+  /*
   // Setting fit range and start values
   Double_t fr[2];
   Double_t sv[4], pllo[4], plhi[4], fp[4], fpe[4];   
@@ -442,7 +472,7 @@ void example::SimpleDistributionsTrack(TString outputname="")
 
   first_iteration_peak1->Write();
   first_iteration_peak2->Write();
-  first_iteration_peak3->Write();
+  first_iteration_peak3->Write();*/
 
   signalfile_summary->cd();
 
