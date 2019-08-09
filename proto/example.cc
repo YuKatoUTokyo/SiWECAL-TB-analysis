@@ -8,6 +8,7 @@
 #include <iostream>
 #include <TFitResult.h>
 #include <TSpectrum.h>
+#include <TSystem.h>
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -113,7 +114,8 @@ bool example::TrackBasicSelection( int nslabs_selection=7) {
   for(int i=0; i<5; i++ ) if( bool_hit_slab[i]==true) nslabhitted_fev13++;
   for(int i=5; i<9; i++ ) if( bool_hit_slab[i]==true) nslabhitted_sl++;
 
-  if( (nslabhitted_fev13<4 || nslabhitted_sl<4)) return false;// || nhits_dif>5 || nhits_sl>4 ) return false;
+  //if( (nslabhitted_fev13<4 || nslabhitted_sl<4)) return false;// || nhits_dif>5 || nhits_sl>4 ) return false;
+  if( nslabhitted_fev13<4 ) return false;
   return true;
 
 }
@@ -150,7 +152,7 @@ void example::SimpleEvDisplayTrack(TString outputname="")
     int fivepercent=nentries/20;
     if( (jentry % fivepercent) == 0 ) cout<< "Progress: "<<100.*jentry/nentries<<" %" <<endl;
 
-    if( bcid<50 || (bcid>899 && bcid<930)) continue;
+    //if( bcid<50 || (bcid>899 && bcid<930)) continue;
     if(TrackBasicSelection()==false) continue;
     // std::cout<<ntracks<<" "<<jentry<<endl;
     // ntracks_50++;
@@ -160,6 +162,7 @@ void example::SimpleEvDisplayTrack(TString outputname="")
     for(int ihit=0; ihit< nhit_chan; ihit ++) {
       if(  hit_isMasked[ihit] == 0 && hit_isHit[ihit]==1 ) {
 	tracks=true;
+	//cout << "Fill: (x,y,z,lg) = (" << hit_x[ihit] << "," << hit_y[ihit] << "," << hit_z[ihit] << "," << hit_hg[ihit] << ")" << endl;
 	mip_evdisp[ntracks]->Fill(hit_x[ihit],hit_z[ihit],hit_y[ihit],hit_hg[ihit]);
 	//	else mip_evdisp[ntracks]->Fill(-hit_x[ihit],hit_z[ihit],-hit_y[ihit],hit_lg[ihit]);
 	
@@ -174,6 +177,7 @@ void example::SimpleEvDisplayTrack(TString outputname="")
 
   // -----------------------------------------------------------------------------------------------------   
   // Signal analysis
+  gSystem->Exec("mkdir -p results_mipcalibration");
   TFile *signalfile_summary = new TFile("results_mipcalibration/EvDisplay"+outputname+".root" , "RECREATE");
   signalfile_summary->cd();
   for(int i=0; i<500; i++) {
