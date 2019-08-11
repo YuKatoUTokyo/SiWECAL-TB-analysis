@@ -137,6 +137,7 @@ def build_events(filename, maxEntries = -1, w_config = -1):
     # Get ttree
     tfile = rt.TFile(filename,"read")
     treename = "ecal_raw"
+    #treename = "fev13"
     tree = tfile.Get(treename)
     if not tree:
         print("No tree found in ")

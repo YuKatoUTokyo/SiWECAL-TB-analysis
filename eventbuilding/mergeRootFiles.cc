@@ -153,7 +153,23 @@ public:
 	}
       }
 
-
+      
+      //correct bcid of DIF3-CHIP0 by Y.Kato
+      for (int isca=0; isca<MEMDEPTH; isca++) {
+	if(corrected_bcid_in[2][0][isca]<0 || bcid_in[2][0][isca]<0) continue;
+	int correction_flag = 0;
+	int bcid_dif3chip0 = (bcid_in[2][0][isca]/128*128+64)*2-1-bcid_in[2][0][isca];
+	for(int islab=0; islab<NSLABS; islab++){
+	  if(islab==2) continue;
+	  for(int isca2=0; isca2<MEMDEPTH; isca2++){
+	    if(abs(bcid_dif3chip0-bcid_in[islab][0][isca2])<3){
+	      correction_flag++;
+	      break;
+	    }
+	  }
+	}
+	if(correction_flag>1) bcid_in[2][0][isca] = bcid_dif3chip0;
+      } // Y.Kato
 
       for(int slab = 0;slab<NSLABS;slab++){
 	if(currentSpill==acqNumber_in[slab] && entries[slab]>entry[slab]){
@@ -167,27 +183,52 @@ public:
 	    //correct DIF bcid for the offset
 	    for (int iraw=0; iraw<MEMDEPTH; iraw++) {
 	      if(corrected_bcid_in[slab][k][iraw]<0 || bcid_in[slab][k][iraw]<0) continue;
+	      //correct bcid of DIF3-CHIP0 by Y.Kato
+	      /*int correction_flag = 0;
+	      if(slab==0 && k==0)
+		int avelagebcid_woDIF3=(bcid_in[0][k][iraw]+bcid_in[1][k][iraw]+bcid_in[3][k][iraw]+bcid_in[4][k][iraw])/4;
+		for(int islab=0; islab<NSLABS; islab++){
+		if(islab==2) continue;
+		if(abs(avelagebcid_woDIF3-bcid_in[islab][k][iraw])<5)
+		  
+		}
+	      if(slab==2 && k==0){
+		if((bcid_in[4][k][iraw]/128%2==0 && bcid_in[4][k][iraw]%128>=64)
+		   || (bcid_in[4][k][iraw]/128%2==1 && bcid_in[4][k][iraw]%128<64)){
+		   bcid_in[2][k][iraw]=(bcid_in[4][k][iraw]/128*128+64)*2-bcid_in[2][k][iraw];
+		  //cout << "bcid corrected." << endl;
+		}
+		//}
+		} // Y.Kato*/
 	      if(slab<5) {
-		bcid_in[slab][k][iraw]=bcid_in[slab][k][iraw]-2492;
-		corrected_bcid_in[slab][k][iraw]=corrected_bcid_in[slab][k][iraw]-2492;
+		bcid_in[slab][k][iraw]=bcid_in[slab][k][iraw]-2496;
+		corrected_bcid_in[slab][k][iraw]=corrected_bcid_in[slab][k][iraw]-2496;
+		// Y.Kato
+		if(bcid_in[slab][k][iraw]<0){
+		  bcid_in[slab][k][iraw]=bcid_in[slab][k][iraw]+4096;
+		  corrected_bcid_in[slab][k][iraw]=corrected_bcid_in[slab][k][iraw]+4096;
+		}// Y.Kato
 	      }
 	    }
 
 	    int i =0;
 	    int loopBCID = 0;
+	    int border = 0;
+	    if(slab==2&&k==0) border = -128;
 	    for (int iraw=0; iraw<MEMDEPTH; iraw++) {
 
-	      if(bcid_in[slab][k][i]<0) continue;
+	      if(bcid_in[slab][k][iraw]<0) continue;
 
 	      //calculate overrunning bcids
 	      // this is supposed to be don in the RAW2ROOT or SLBdecodedROOT macros, in the corrected_bcid
 	      if(iraw==0) i = iraw;
-	      else if( (bcid_in[slab][k][iraw] - bcid_in[slab][k][iraw-1])>0) i = iraw;
-	      else if( (bcid_in[slab][k][iraw] - bcid_in[slab][k][iraw-1])<0){
+	      else if( (bcid_in[slab][k][iraw] - bcid_in[slab][k][iraw-1])>border) i = iraw;
+	      else if( (bcid_in[slab][k][iraw] - bcid_in[slab][k][iraw-1])<border){
 		i = iraw;
 		loopBCID++;
 	      } else continue;
 
+	      //if(slab==2&&k==0&&loopBCID>=1) loopBCID = 1;
 	      bcid[slab][k][i] = bcid_in[slab][k][i]+loopBCID*4096;
 	      badbcid[slab][k][i]=badbcid_in[slab][k][i];
 	      corrected_bcid[slab][k][i]=corrected_bcid_in[slab][k][i];
@@ -306,7 +347,7 @@ protected:
     MEMDEPTH=15,
     NCHANNELS=64,
     NCHIP=16,
-    NSLABS=9
+    NSLABS=5
   };
 
 

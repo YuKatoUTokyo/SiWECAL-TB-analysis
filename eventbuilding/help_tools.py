@@ -2,7 +2,7 @@
 import os
 import numpy as np
 
-NSLAB = 9
+NSLAB = 5
 NCHIP = 16
 NSCA = 15
 NCHAN = 64
@@ -21,15 +21,15 @@ pos_z = []
 pos_xzero = []
 
 slab_map = {
-    0: '_dif_1_1_1_dummy',
-    1: '_dif_1_1_2_dummy',
-    2: '_dif_1_1_3_dummy',
-    3: '_dif_1_1_4_dummy',
-    4: '_dif_1_1_5_dummy',
-    5: '_SLB_2_dummy',
-    6: '_SLB_1_dummy',
-    7: '_SLB_3_dummy',
-    8: '_SLB_0_dummy',
+    0: '_dif_1_1_1',
+    1: '_dif_1_1_2',
+    2: '_dif_1_1_3',
+    3: '_dif_1_1_4',
+    4: '_dif_1_1_5',
+    #5: '_SLB_2_dummy',
+    #6: '_SLB_1_dummy',
+    #7: '_SLB_3_dummy',
+    #8: '_SLB_0_dummy',
 }
 
 class EcalHit:
@@ -112,7 +112,7 @@ def build_w_config(config = 1):
     print("W config %i used:" %config )
     print(abs_thick, pos_xzero)
 
-def read_mapping(fname = "../mapping/fev10_chip_channel_x_y_mapping.txt"):
+def read_mapping(fname = "../mapping/fev13_chip_channel_x_y_mapping.txt"):
 
     global chan_map# = {}
 
@@ -196,7 +196,7 @@ def read_mip_values(indir_prefix = "../mip_calib/"):
 
     
     for slab in slab_map:
-        fname = indir_prefix + "MIP%s.txt" % slab_map[slab]
+        fname = indir_prefix + "MIP%s_dummy.txt" % slab_map[slab]
         print("Reading MIP values for %s from %s" %(slab,fname))
         if not os.path.exists(fname):
             print fname, " does not exist"
