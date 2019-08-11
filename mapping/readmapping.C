@@ -15,7 +15,7 @@ Float_t map_pointY[16][64];
 void readmapping() 
 {
 
-  TString filename="fev10_chip_channel_x_y_mapping.txt";
+  TString filename="fev13_chip_channel_x_y_mapping.txt";
   std::ifstream reading_file(filename);
   if(!reading_file){
     cout<<" dameyo - damedame"<<endl;
